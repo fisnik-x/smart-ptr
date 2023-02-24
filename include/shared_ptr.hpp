@@ -105,8 +105,25 @@ private:
     T* m_ptr;
     Control_Block* m_ctrlBlock;
 
-    void increment_reference(){}
-    void decrement_reference(){}
+    void increment_reference()
+    {
+        ++m_ctrlBlock->m_refCount;
+    }
+
+    void decrement_reference()
+    {
+        if(m_ptr) {
+            if(--m_ctrlBlock->m_refCount == 0){
+                delete m_ptr;
+                if(m_ctrlBlock->m_weakCount == 0){
+                    delete m_ctrlBlock;
+                }
+            }
+
+            m_ptr = nullptr;
+            m_ctrlBlock = nullptr;
+        }
+    }
 };
 
 template<class T> void swap(shared_ptr<T>& lhs, shared_ptr<T> rhs) noexcept 
