@@ -14,6 +14,7 @@
 #include <compare>
 #include <memory>
 
+#include "core.h"
 #include "weak_ptr.hpp"
 #include "control_block.hpp"
 
@@ -41,10 +42,8 @@ public:
     explicit shared_ptr(weak_ptr<T>& other) 
         : m_ptr{ other.m_ptr }, m_ctrlBlock{ other.m_ctrlBlock } 
     {
-        if(other.expired())
-            throw std::bad_weak_ptr();
-        else
-            ++m_ctrlBlock->m_refCount;
+        assert_enforce<std::bad_weak_ptr>(other.expired(), "The weak_ptr has expired.");
+        ++m_ctrlBlock->m_refCount;
     }
 
     ~shared_ptr() { decrement_reference(); }
