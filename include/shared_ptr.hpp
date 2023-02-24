@@ -11,57 +11,113 @@
     LICENSE file in the root directory of this source tree. 
 --*/
 #pragma once
-#include <algorithm>
-#include <iterator>
 #include <compare>
-#include <cassert>
 #include <memory>
 
+#include "weak_ptr.hpp"
 #include "control_block.hpp"
 
 template<typename T>
 class shared_ptr {
 public:
     constexpr shared_ptr() : shared_ptr(nullptr) {}
-    explicit shared_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block}{}
-    constexpr shared_ptr(const std::nullptr_t) noexcept : m_ptr{nullptr}, m_ctrlBlock{nullptr}{}
+    
+    explicit shared_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block}
+    {
+        increment_reference();
+    }
+
+    constexpr shared_ptr(const std::nullptr_t) noexcept 
+        : m_ptr{nullptr}, m_ctrlBlock{nullptr}
+    {
+        increment_reference();
+    }
 
     shared_ptr(shared_ptr&& other) noexcept
-        : m_ptr{ other.m_ptr }, m_ctrlBlock{ other.m_ctrlBlock }
+        : m_ptr{ std::exchange(other.m_ptr, nullptr) }, 
+          m_ctrlBlock{ std::exchange(other.m_ctrlBlock, nullptr) }
     {}
 
     explicit shared_ptr(weak_ptr<T>& other) 
         : m_ptr{ other.m_ptr }, m_ctrlBlock{ other.m_ctrlBlock } 
-    {}
+    {
+        if(other.expired())
+            throw std::bad_weak_ptr();
+        else
+            ++m_ctrlBlock->m_refCount;
+    }
 
-    ~shared_ptr() {}
+    ~shared_ptr() { decrement_reference(); }
 
-    shared_ptr& operator=(const shared_ptr& other) noexcept {}
-    shared_ptr& operator=(shared_ptr&& other) noexcept {}
+    shared_ptr& operator=(const shared_ptr& other) noexcept 
+    {
+        if(this == &other)
+            return *this;
+        
+        decrement_reference();
+        m_ptr = other.m_ptr;
+        m_ctrlBlock = other.m_ctrlBlock;
+        increment_reference();
+        return *this;
+    }
+    
+    shared_ptr& operator=(shared_ptr&& other) noexcept 
+    {
+        if(this == &other)
+            return *this;
+        
+        decrement_reference();
+        m_ctrlBlock = std::exchange(other.m_ctrlBlock, nullptr);
+        m_ptr = std::exchange(other.m_ptr, nullptr);
+
+        return *this;
+    }
+
     shared_ptr& operator=(std::nullptr_t)
+    {
+        if(m_ctrlBlock == nullptr)
+            return *this;
+        
+        decrement_reference();
+        return *this;
+    }
 
-    T* get() const noexcept {}
-    T* operator*() const noexcept {}
-    T* operator->() const noexcept {}
-    explicit operator bool() const noexcept {}
+    T* get() const noexcept { return m_ptr; }
+    T* operator*() const noexcept { return *m_ptr; }
+    T* operator->() const noexcept { return m_ptr; }
+    explicit operator bool() const noexcept { return m_ptr != nullptr && m_ctrlBlock != nullptr; }
 
-    int use_count() const noexcept {}
-    void reset() noexcept {}
+    int use_count() const noexcept { return (m_ctrlBlock) ? m_ctrlBlock->m_refCount : 0; }
+    void reset() noexcept { decrement_reference(); }
 
     template<class T> friend void swap(shared_ptr<T>& lhs, shared_ptr<T>& rhs) noexcept;
 
     friend auto operator<=>(const shared_ptr& lhs, const shared_ptr& rhs) = default;
-    friend auto operator==(const shared_ptr& lhs, const shared_ptr& rhs) {}
+    friend auto operator==(const shared_ptr& lhs, const shared_ptr& rhs) 
+    {
+        if(lhs.get() != rhs.get())
+            return false;
+        
+        return (lhs.get() <=> rhs.get()) == 0;
+    }
 
 private:
     T* m_ptr;
     Control_Block* m_ctrlBlock;
 
-    void add_reference(){}
-    void remove_reference(){}
+    void increment_reference(){}
+    void decrement_reference(){}
 };
 
-template<class T> void swap(shared_ptr<T>& lhs, shared_ptr<T> rhs) noexcept {}
+template<class T> void swap(shared_ptr<T>& lhs, shared_ptr<T> rhs) noexcept 
+{
+    T temp(std::move(lhs));
+    lhs = std::move(rhs);
+    rhs = std::move(temp);
+}
 
 template<class T, class ...Args>
-shared_ptr<T> make_shared(Args && ...args){}
+shared_ptr<T> make_shared(Args && ...args)
+{
+    return shared_ptr<T>(new T(std::forward<Args>(args)...));
+}
