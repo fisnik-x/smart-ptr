@@ -1,11 +1,15 @@
 /*++
+    control_block.hpp
+    
+    Author: Fisnik
+    Copyright (C) Fisnik. All rights reserved.
 
-control_block.hpp
+    Abstract:
 
-@author:
-	Fisnik
+    
 
-Copyright (c) Fisnik. All rights reserved.
+    This source code is licensed under the MIT license found in the
+    LICENSE file in the root directory of this source tree. 
 --*/
 #pragma once
 
