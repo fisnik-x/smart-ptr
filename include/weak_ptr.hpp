@@ -14,9 +14,6 @@ Copyright (c) Fisnik. All rights reserved.
 
 template<typename T>
 class weak_ptr{
-private:
-    T* m_ptr{nullptr};
-    Control_Block* m_ctrlBlock{nullptr};
 public:
     constexpr weak_ptr() noexcept : m_ptr{}, m_ctrlBlock{} {}
     weak_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block} { increment_weakptr(); }
@@ -35,9 +32,11 @@ public:
     template<class T> friend void swap(weak_ptr<T>& lhs, weak_ptr<T>& rhs) noexcept;
 
 private:
+    T* m_ptr{nullptr};
+    Control_Block* m_ctrlBlock{nullptr};
+    
     void increment_weakptr(){}
     void decrement_weakptr(){}
-
 };
 
 template<class T>

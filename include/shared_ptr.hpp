@@ -18,13 +18,6 @@ Copyright (c) Fisnik. All rights reserved.
 
 template<typename T>
 class shared_ptr {
-private:
-    T* m_ptr;
-    Control_Block* m_ctrlBlock;
-
-    void add_reference(){}
-    void remove_reference(){}
-
 public:
     constexpr shared_ptr() : shared_ptr(nullptr) {}
     explicit shared_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block}{}
@@ -57,6 +50,12 @@ public:
     friend auto operator<=>(const shared_ptr& lhs, const shared_ptr& rhs) = default;
     friend auto operator==(const shared_ptr& lhs, const shared_ptr& rhs) {}
 
+private:
+    T* m_ptr;
+    Control_Block* m_ctrlBlock;
+
+    void add_reference(){}
+    void remove_reference(){}
 };
 
 template<class T> void swap(shared_ptr<T>& lhs, shared_ptr<T> rhs) noexcept {}
