@@ -1,20 +1,9 @@
-/*++
-    shared_ptr.hpp
-    
-    Author: Fisnik
-    Copyright (C) Fisnik. All rights reserved.
-
-    Abstract:
-    
-    
-    This source code is licensed under the MIT license found in the
-    LICENSE file in the root directory of this source tree. 
---*/
+// Copyright (C) Fisnik. All rights reserved.
 #pragma once
 #include <compare>
 #include <memory>
 
-#include "core.h"
+#include "assert.h"
 #include "weak_ptr.hpp"
 #include "control_block.hpp"
 

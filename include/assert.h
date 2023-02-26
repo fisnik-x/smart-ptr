@@ -1,9 +1,4 @@
-/*++
-    core.hpp
-
-    Author: Fisnik
-    Copyright (c) Fisnik. All rights reserved.
---*/
+// Copyright (C) Fisnik. All rights reserved.
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
