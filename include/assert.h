@@ -3,8 +3,8 @@
 #pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#ifndef CORE_H
-#define CORE_H
+#ifndef ASSERT_H
+#define ASSERT_H
 
 #include <stddef.h>
 #include <stdexcept>
@@ -33,4 +33,4 @@ inline static void assert_enforce(bool condition, Args&&... args)
     }
 }
 
-#endif // CORE_H
+#endif // ASSERT_H
