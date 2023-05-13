@@ -8,11 +8,19 @@ template<typename T>
 class weak_ptr{
     template<typename X> friend class shared_ptr;
 public:
-    constexpr weak_ptr() noexcept : m_ptr{}, m_ctrlBlock{} {}
-    weak_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block} { increment_weakptr(); }
+    constexpr weak_ptr() noexcept 
+    : m_ptr{}, 
+      m_ctrlBlock{} 
+    {}
+    
+    weak_ptr(T* other) 
+    : m_ptr{other}, 
+      m_ctrlBlock{new Control_Block} 
+    { increment_weakptr(); }
     
     weak_ptr(const shared_ptr<T>& other) noexcept 
-        : m_ptr{other.m_ptr}, m_ctrlBlock{other.m_ctrlBlock} 
+        : m_ptr{other.m_ptr}, 
+          m_ctrlBlock{other.m_ctrlBlock} 
     {
         increment_weakptr();
     }

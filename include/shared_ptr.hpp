@@ -12,13 +12,14 @@ class shared_ptr {
 public:
     constexpr shared_ptr() : shared_ptr(nullptr) {}
     
-    explicit shared_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block}
+    constexpr shared_ptr(const std::nullptr_t) noexcept 
+        : m_ptr{nullptr}, 
+          m_ctrlBlock{nullptr}
     {
         increment_reference();
     }
 
-    constexpr shared_ptr(const std::nullptr_t) noexcept 
-        : m_ptr{nullptr}, m_ctrlBlock{nullptr}
+    explicit shared_ptr(T* other) : m_ptr{other}, m_ctrlBlock{new Control_Block}
     {
         increment_reference();
     }
@@ -28,8 +29,9 @@ public:
           m_ctrlBlock{ std::exchange(other.m_ctrlBlock, nullptr) }
     {}
 
-    explicit shared_ptr(weak_ptr<T>& other) 
-        : m_ptr{ other.m_ptr }, m_ctrlBlock{ other.m_ctrlBlock } 
+    explicit shared_ptr(const weak_ptr<T>& other) 
+        : m_ptr{ other.m_ptr }, 
+          m_ctrlBlock{ other.m_ctrlBlock } 
     {
         assert_enforce<std::bad_weak_ptr>(other.expired(), "The weak_ptr has expired.");
         ++m_ctrlBlock->m_refCount;
